@@ -2,6 +2,16 @@
 
 Fast Transfer Entropy is a single-header C++ library for calculating transfer entropy and related measures using a custom tree based on the probability of symbol sequences. The library is designed to be efficient and easily parallelizable for multiple time series.
 
+## Theory
+Transfer entropy is a measure of the amount of information transferred from one time series to another. It quantifies the influence of one time series on another by measuring the reduction in uncertainty about the future of one time series given the past of another. Specifically, we calculate the symbolic transfer entropy $TE(X \to Y)$ from time series $X$ to $Y$ as follows:
+
+$$
+ TE(X \to Y) = H(Y_{t} | Y_t^{(\delta)}, X_{t}^{(\delta)}) - H(Y_{t+\delta} | Y_{t}^{(\delta)}) \\
+  = \sum_{\Omega} p(y, y^{(\delta)}, x^{(\delta)}) \log \left( \frac{p(y_{t} | y_t^{(\delta)}, x_t^{(\delta)})}{p(y_{t} | y_t^{(\delta)})} \right)
+$$
+
+Where $Y^{(\delta)}_t$ is the delay vector given by $\{Y_{t-1},... ,Y_{t-\delta+1}\}$.
+
 ## Features
 
 - Efficient calculation of symbolic transfer entropy and KL transfer entropy.
@@ -19,7 +29,7 @@ Simply include the [fast_transfer_entropy.hpp](include/fast_transfer_entropy.hpp
 
 ## Usage
 
-The library provides functions for calculating symbolic transfer entropy and KL transfer entropy. The following example demonstrates how to calculate symbolic transfer entropy between two symbol sequences:
+The library provides a function for calculating symbolic transfer entropy. The following example demonstrates how to calculate symbolic transfer entropy between two symbol sequences:
 
 ```cpp
 #include "fast_transfer_entropy.hpp"

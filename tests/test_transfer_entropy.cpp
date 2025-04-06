@@ -14,7 +14,7 @@ TEST_CASE("Test Transfer Entropy of Identical Sequences"){
     }
 
     for (int delta = 2; delta < 10; ++delta)
-    REQUIRE(calculateKLTransferEntropy(symbol, symbol, delta, numSymbols) == 0.0);
+    REQUIRE(calculateSymbolicTransferEntropy(symbol, symbol, delta, numSymbols) == 0.0);
 }
 
 TEST_CASE("Test transfer entropy non_identical") {
@@ -32,6 +32,6 @@ TEST_CASE("Test transfer entropy non_identical") {
         symbol2[i] = rand2;
     }
 
-    float transferEntropy = calculateKLTransferEntropy(symbol1, symbol2, numLevels, numSymbols);
+    float transferEntropy = calculateSymbolicTransferEntropy(symbol1, symbol2, numLevels, numSymbols);
     REQUIRE(fabs(transferEntropy) < .05);
 }

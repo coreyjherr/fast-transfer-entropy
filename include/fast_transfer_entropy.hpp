@@ -118,23 +118,12 @@ public:
 
   /**
    * @brief Calculates the KL Transfer Entropy between two trees.
-   * @param treeY The first tree.
-   * @param treeX The second tree.
-   * @param delta The time delay.
-   * @return The calculated KL Transfer Entropy.
-   */
-  friend double calculateTransferEntropy(ProbabilityTree& treeY,
-                                         ProbabilityTree& treeX,
-                                         const int delta);
-
-  /**
-   * @brief Calculates the KL Transfer Entropy between two trees.
    * @param treeXY The first tree.
    * @param treeYX The second tree.
    * @param delta The time delay.
    * @return The calculated KL Transfer Entropy.
    */
-  friend double calculateKLTransferEntropy(ProbabilityTree& treeXY,
+  friend double calculateSymbolicTransferEntropy(ProbabilityTree& treeXY,
                                            ProbabilityTree& treeYX,
                                            const int delta);
 
@@ -173,23 +162,10 @@ private:
  * @param numSymbols The number of unique symbols.
  * @return The calculated KL Transfer Entropy.
  */
-double calculateKLTransferEntropy(const SymbolSequence& X,
+double calculateSymbolicTransferEntropy(const SymbolSequence& X,
                                   const SymbolSequence& Y,
                                   const int delta,
                                   const int numSymbols);
-
-/**
- * @brief Calculates the Transfer Entropy between two symbol sequences.
- * @param X The first symbol sequence.
- * @param Y The second symbol sequence.
- * @param delta The time delay.
- * @param numSymbols The number of unique symbols.
- * @return The calculated Transfer Entropy.
- */
-double calculateTransferEntropy(const SymbolSequence& X,
-                                const SymbolSequence& Y,
-                                const int delta,
-                                const int numSymbols);
 
 //
 // IMPLEMENTATIONS BELOW
@@ -217,7 +193,7 @@ inline Node* findAncestor(Node* node, int k)
  * @param delta The time delay.
  * @return The calculated KL Transfer Entropy.
  */
-inline double calculateKLTransferEntropy(ProbabilityTree& treeXY,
+inline double calculateSymbolicTransferEntropy(ProbabilityTree& treeXY,
                                          ProbabilityTree& treeYX,
                                          const int delta)
 {
@@ -255,26 +231,6 @@ inline double calculateKLTransferEntropy(ProbabilityTree& treeXY,
  * @param delta The time delay.
  * @return The calculated Transfer Entropy.
  */
-inline double calculateTransferEntropy(ProbabilityTree& treeY,
-                                       ProbabilityTree& treeXY,
-                                       const int delta)
-{
-  double HY = 0;
-  double HXY = 0;
-  for (Node* node : treeY.leafNodes) {
-    double currentCount = node->count;
-    double parentCount = node->parent->count;
-    HY -= (currentCount / treeY.totalCount) * log2(currentCount / parentCount);
-  }
-
-  for (Node* node : treeXY.leafNodes) {
-    double currentCount = node->count;
-    double parentCount = node->parent->count;
-    HXY -=
-      (currentCount / treeXY.totalCount) * log2(currentCount / parentCount);
-  }
-  return HY - HXY;
-}
 
 /**
  * @brief Calculates the KL Transfer Entropy between two symbol sequences.
@@ -284,7 +240,7 @@ inline double calculateTransferEntropy(ProbabilityTree& treeY,
  * @param numSymbols The number of unique symbols.
  * @return The calculated KL Transfer Entropy.
  */
-inline double calculateKLTransferEntropy(const SymbolSequence& X,
+inline double calculateSymbolicTransferEntropy(const SymbolSequence& X,
                                          const SymbolSequence& Y,
                                          const int delta,
                                          const int numSymbols)
@@ -313,7 +269,7 @@ inline double calculateKLTransferEntropy(const SymbolSequence& X,
       treeYX.updateBaseCount();
     }
 
-    TXY = calculateKLTransferEntropy(treeXY, treeYX, delta);
+    TXY = calculateSymbolicTransferEntropy(treeXY, treeYX, delta);
   }
   {
     ProbabilityTree treeYX(numSymbols, 2 * delta - 1, T);
@@ -333,55 +289,12 @@ inline double calculateKLTransferEntropy(const SymbolSequence& X,
       treeYX.updateBaseCount();
     }
 
-    TYX = calculateKLTransferEntropy(treeYX, treeXY, delta);
+    TYX = calculateSymbolicTransferEntropy(treeYX, treeXY, delta);
   }
 
   return TXY - TYX;
 }
 
-/**
- * @brief Calculates the Transfer Entropy between two symbol sequences.
- * @param X The first symbol sequence.
- * @param Y The second symbol sequence.
- * @param delta The time delay.
- * @param numSymbols The number of unique symbols.
- * @return The calculated Transfer Entropy.
- */
-inline double calculateTransferEntropy(const SymbolSequence& X,
-                                       const SymbolSequence& Y,
-                                       const int delta,
-                                       const int numSymbols)
-{
-  const int T = X.size();
-
-  ProbabilityTree treeY = ProbabilityTree(numSymbols, delta, T);
-  ProbabilityTree treeXY = ProbabilityTree(numSymbols, 2 * delta - 1, T);
-  for (int i = delta; i < T; i++) {
-    vector<int> symbolY(Y.begin() + i - delta, Y.begin() + i);
-    vector<int> symbolXY(X.begin() + i - delta, X.begin() + i - 1);
-    symbolXY.insert(symbolXY.end(), symbolY.begin(), symbolY.end());
-    treeY.insertSymbol(symbolY);
-    treeXY.insertSymbol(symbolXY);
-  }
-  treeY.updateBaseCount();
-
-  double TXY = calculateTransferEntropy(treeY, treeXY, delta);
-
-  ProbabilityTree treeX = ProbabilityTree(numSymbols, delta, T);
-  ProbabilityTree treeYX = ProbabilityTree(numSymbols, 2 * delta - 1, T);
-  for (int i = delta; i < T; i++) {
-    vector<int> symbolX(X.begin() + i - delta, X.begin() + i);
-    vector<int> symbolYX(Y.begin() + i - delta, Y.begin() + i - 1);
-    symbolYX.insert(symbolYX.end(), symbolX.begin(), symbolX.end());
-    treeX.insertSymbol(symbolX);
-    treeYX.insertSymbol(symbolYX);
-  }
-
-  treeX.updateBaseCount();
-
-  double TYX = calculateTransferEntropy(treeX, treeYX, delta);
-  return TXY - TYX;
-}
 
 /**
  * @brief Deletes all nodes in the tree using DFS.
