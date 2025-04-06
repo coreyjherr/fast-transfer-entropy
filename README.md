@@ -5,12 +5,9 @@ Fast Transfer Entropy is a single-header C++ library for calculating transfer en
 ## Theory
 Transfer entropy is a measure of the amount of information transferred from one time series to another. It quantifies the influence of one time series on another by measuring the reduction in uncertainty about the future of one time series given the past of another. Specifically, we calculate the symbolic transfer entropy $TE(X \to Y)$ from time series $X$ to $Y$ as follows:
 
-$$
- TE(X \to Y) = H(Y_{t} | Y_t^{(\delta)}, X_{t}^{(\delta)}) - H(Y_{t+\delta} | Y_{t}^{(\delta)}) \\
-  = \sum_{\Omega} p(y, y^{(\delta)}, x^{(\delta)}) \log \left( \frac{p(y_{t} | y_t^{(\delta)}, x_t^{(\delta)})}{p(y_{t} | y_t^{(\delta)})} \right)
-$$
+$$TE(X \to Y) = H(Y_{t} | Y_t^{(\delta)}, X_{t}^{(\delta)}) - H(Y_{t+\delta} | Y_{t}^{(\delta)}) \\ = \sum_{\Omega} p(y, y^{(\delta)}, x^{(\delta)}) \log \left( \frac{p(y_{t} | y_t^{(\delta)}, x_t^{(\delta)})}{p(y_{t} | y_t^{(\delta)})} \right)$$
 
-Where $Y^{(\delta)}_t$ is the delay vector given by $\{Y_{t-1},... ,Y_{t-\delta+1}\}$.
+Where $`Y^{(\delta)}_t$`$ is the delay vector given by $`\{Y_{t-1},... ,Y_{t-\delta+1}\}`$.
 
 ## Features
 
